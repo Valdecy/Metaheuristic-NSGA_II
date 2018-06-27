@@ -51,36 +51,29 @@ def dominance_function(solution_1, solution_2, number_of_functions = 2):
     if (count == number_of_functions):
         dominance = True
     else:
-        dominance = False
-        
+        dominance = False       
     return dominance
 
 # Function: Fast Non-Dominated Sorting
 def fast_non_dominated_sorting(population, number_of_functions = 2):
     dominated_by = pd.DataFrame(np.zeros((population.shape[0], 1)), columns = ['Dominated_By'])
-    dominated_by = dominated_by.applymap(str)
-    
+    dominated_by = dominated_by.applymap(str)    
     dominates_it = pd.DataFrame(np.zeros((population.shape[0], 1)), columns = ['Dominates_It'])
-    dominates_it = dominates_it.applymap(str)   
-    
+    dominates_it = dominates_it.applymap(str)       
     rank = pd.DataFrame(np.zeros((population.shape[0], 1)), columns = ['Dominance_N'])
-
     for i in range(0, population.shape[0]):
         for j in range(i + 1, population.shape[0]):
             if dominance_function(solution_1 = population.iloc[i,:], solution_2 = population.iloc[j,:], number_of_functions = number_of_functions):
                 dominates_it.iloc[i,0] = str(dominates_it.iloc[i,0]) + ", " + str(j)
                 dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("0.0, ", "")
-
                 dominated_by.iloc[j,0] = str(dominated_by.iloc[j,0]) + ", " + str(i)
-                dominated_by.iloc[j,0] = dominated_by.iloc[j,0].replace("0.0, ", "")
-                
+                dominated_by.iloc[j,0] = dominated_by.iloc[j,0].replace("0.0, ", "")                
                 if (rank.iloc[i,0] > 0):
                     rank.iloc[j,0] = rank.iloc[j,0] + 1
                 else:
                     rank.iloc[j,0] = 1
         dominated_by.iloc[i,0] = dominated_by.iloc[i,0].replace("0.0", "None")
-        dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("0.0", "None")
-        
+        dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("0.0", "None")        
     rank['Rank'] = rank['Dominance_N'].rank(method = 'dense') 
     return rank, dominated_by, dominates_it 
 
@@ -88,15 +81,13 @@ def fast_non_dominated_sorting(population, number_of_functions = 2):
 def sort_population_by_rank(population, rank):
     rank = rank.sort_values(by = 'Rank')
     rank_new = pd.DataFrame(np.zeros((population.shape[0], 2)), columns = ['Dominance_N', 'Rank'])
-    population_new = population.copy(deep = True)
-    
+    population_new = population.copy(deep = True)   
     for i in range(0, population.shape[0]):
         idx = rank.index.values.astype(int)[i]
         rank_new.iloc[i,0] = rank.iloc[i,0] 
         rank_new.iloc[i,1] = rank.iloc[i,1]
         for k in range(0, population.shape[1]):
             population_new.iloc[i,k] = population.iloc[idx,k]
-
     return population_new, rank_new
 
 # Function: Min_Max
@@ -130,16 +121,14 @@ def neighbour_sorting(population, rank, column = 0, index_value = 1, value = 0):
 
 # Function: Crowding Distance
 def crowding_distance_function(population, rank, number_of_functions = 2): 
-    crowding_distance = pd.DataFrame(np.zeros((population.shape[0], 1)), columns = ['Crowding_Distance'])
-    
+    crowding_distance = pd.DataFrame(np.zeros((population.shape[0], 1)), columns = ['Crowding_Distance'])   
     for i in range(0, population.shape[0]):
         if (i == 0):
             crowding_distance.iloc[i, 0] = float("inf")
         elif(i < population.shape[0]):
             if (rank.iloc[i, 1] != rank.iloc[i - 1, 1]):
                 crowding_distance.iloc[i, 0] = float("inf")
-                crowding_distance.iloc[i - 1, 0] = float("inf")
-    
+                crowding_distance.iloc[i - 1, 0] = float("inf")    
     for i in range(0, population.shape[0]):
         if (crowding_distance.iloc[i, 0] != float("inf")):
             for j in range(1, number_of_functions + 1):
@@ -166,8 +155,7 @@ def breeding(population, rank, crowding_distance, min_values = [-5,-5], max_valu
         elif (crowded_comparison_operator(rank, crowding_distance, individual_1 = i2, individual_2 = i1) == True):
             parent_1 = i2
         else:
-            parent_1 = random.randint(0, len(population) - 1)
-            
+            parent_1 = random.randint(0, len(population) - 1)            
         if (crowded_comparison_operator(rank, crowding_distance, individual_1 = i3, individual_2 = i4) == True):
             parent_2 = i3
         elif (crowded_comparison_operator(rank, crowding_distance, individual_1 = i4, individual_2 = i3) == True):
@@ -175,25 +163,21 @@ def breeding(population, rank, crowding_distance, min_values = [-5,-5], max_valu
         else:
             parent_2 = random.randint(0, len(population) - 1)
             while (parent_1 == parent_2):
-                parent_2 = random.randint(0, len(population) - 1)
-        
+                parent_2 = random.randint(0, len(population) - 1)       
         for j in range(0, offspring.shape[1] - len(list_of_functions)):
             rand = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-            rand_b = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)                     
-            
+            rand_b = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)                                 
             if (rand <= 0.5):
                 b_offspring = 2*(rand_b)
                 b_offspring = b_offspring**(1/(mu + 1))
             elif (rand > 0.5):  
                 b_offspring = 1/(2*(1 - rand_b))
-                b_offspring = b_offspring**(1/(mu + 1))
-        
+                b_offspring = b_offspring**(1/(mu + 1))        
             offspring.iloc[i,j] = ((1 + b_offspring)*population.iloc[parent_1, j] + (1 - b_offspring)*population.iloc[parent_2, j])/2
             if (offspring.iloc[i,j] > max_values[j]):
                 offspring.iloc[i,j] = max_values[j]
             elif (offspring.iloc[i,j] < min_values[j]):
-                offspring.iloc[i,j] = min_values[j] 
-            
+                offspring.iloc[i,j] = min_values[j]             
             if(i < population.shape[0] - 1):   
                 offspring.iloc[i + 1,j] = ((1 - b_offspring)*population.iloc[parent_1, j] + (1 + b_offspring)*population.iloc[parent_2, j])/2
                 if (offspring.iloc[i + 1,j] > max_values[j]):
@@ -223,38 +207,28 @@ def mutation(offspring, mutation_rate = 0.1, eta = 1, min_values = [-5,-5], max_
                 if (offspring.iloc[i,j] > max_values[j]):
                     offspring.iloc[i,j] = max_values[j]
                 elif (offspring.iloc[i,j] < min_values[j]):
-                    offspring.iloc[i,j] = min_values[j] 
-                    
+                    offspring.iloc[i,j] = min_values[j]                     
         for k in range (1, len(list_of_functions) + 1):
             offspring.iloc[i,-k] = list_of_functions[-k](offspring.iloc[i,0:offspring.shape[1]-len(list_of_functions)])
     return offspring 
 
 # NSGA II Function
-def non_dominated_sorting_genetic_algorithm_II(population_size = 5, mutation_rate = 0.1, elite = 0, min_values = [-5,-5], max_values = [5,5], list_of_functions = [func_1, func_2], generations = 50, mu = 1, eta = 1):    
-    
+def non_dominated_sorting_genetic_algorithm_II(population_size = 5, mutation_rate = 0.1, elite = 0, min_values = [-5,-5], max_values = [5,5], list_of_functions = [func_1, func_2], generations = 50, mu = 1, eta = 1):        
     count = 0
-    number_of_functions = len(list_of_functions)
-    
-    population = initial_population(population_size = population_size, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)
-    
-    
-    while (count <= generations):
-        
-        print("Generation = ", count)
-        
+    number_of_functions = len(list_of_functions) 
+    population = initial_population(population_size = population_size, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)   
+    while (count <= generations):     
+        print("Generation = ", count)      
         rank, _ , _ = fast_non_dominated_sorting(population, number_of_functions = number_of_functions)  
         population, rank = sort_population_by_rank(population, rank)   
         crowding_distance = crowding_distance_function(population, rank, number_of_functions = number_of_functions)
         offspring = breeding(population, rank, crowding_distance, mu = mu, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)
-        offspring = mutation(offspring, mutation_rate = mutation_rate, eta = eta, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)
-        
+        offspring = mutation(offspring, mutation_rate = mutation_rate, eta = eta, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)        
         population = pd.concat([population, offspring])
         rank, _ , _ = fast_non_dominated_sorting(population, number_of_functions = number_of_functions)
         population, rank = sort_population_by_rank(population, rank)
-        population, rank = population.iloc[0:population_size,:], rank.iloc[0:population_size,:]   
-        
-        count = count + 1 
-              
+        population, rank = population.iloc[0:population_size,:], rank.iloc[0:population_size,:]          
+        count = count + 1              
     return population
 
 ######################## Part 1 - Usage ####################################
