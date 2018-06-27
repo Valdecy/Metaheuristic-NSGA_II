@@ -259,21 +259,6 @@ def non_dominated_sorting_genetic_algorithm_II(population_size = 5, mutation_rat
 
 ######################## Part 1 - Usage ####################################
 
-# Function to be Minimized (Six Hump Camel Back). Solution ->  f(x1, x2) = -1.0316; x1 = 0.0898, x2 = -0.7126 or x1 = -0.0898, x2 = 0.7126
-def target_function_1 (variables_values = [0, 0]):
-    func_value = 4*variables_values[0]**2 - 2.1*variables_values[0]**4 + (1/3)*variables_values[0]**6 + variables_values[0]*variables_values[1] - 4*variables_values[1]**2 + 4*variables_values[1]**4
-    return func_value
-
-# Function to be Minimized (Rosenbrocks Valley). Solution ->  f(x) = 0; xi = 1
-def target_function_2(variables_values = [0, 0]):
-    func_value = 0
-    last_x = variables_values[0]
-    for i in range(1, len(variables_values)):
-        func_value = func_value + (100 * math.pow((variables_values[i] - math.pow(last_x, 2)), 2)) + math.pow(1 - last_x, 2)
-    return func_value
-
-nsga_II = non_dominated_sorting_genetic_algorithm_II(population_size = 40, mutation_rate = 0.1, min_values = [-5,-5], max_values = [5,5], generations = 500, list_of_functions = [target_function_1, target_function_2], mu = 20, eta = 20)
-
 # Function 1
 def func_1 (variables_values = [0]):
     y = variables_values[0]**2
@@ -284,10 +269,10 @@ def func_2 (variables_values = [0]):
     y = (variables_values[0]-2)**2
     return y
 
-# optimal Solution = f(x1, x2) -> [0,2]
+# Calling Function
 nsga_II = non_dominated_sorting_genetic_algorithm_II(population_size = 50, mutation_rate = 0.1, min_values = [-5,-5], max_values = [5,5], list_of_functions = [func_1, func_2], generations = 1500, mu = 20, eta = 20)
 
-# Graph Solutions
+# Pareto Front Solutions  = f(x1, x2) -> [0,2]
 func_1_values = nsga_II.iloc[:,-2]
 func_2_values = nsga_II.iloc[:,-1]
 plt.figure(figsize=(15,8))
