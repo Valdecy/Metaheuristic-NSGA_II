@@ -233,18 +233,18 @@ def non_dominated_sorting_genetic_algorithm_II(population_size = 5, mutation_rat
 
 ######################## Part 1 - Usage ####################################
 
-# Function 1
-def func_1 (variables_values = [0]):
+# Schaffer Function 1
+def schaffer_f1 (variables_values = [0]):
     y = variables_values[0]**2
     return y
 
-# Function 2
-def func_2 (variables_values = [0]):
+# Schaffer Function 2
+def schaffer_f2 (variables_values = [0]):
     y = (variables_values[0]-2)**2
     return y
 
 # Calling Function
-nsga_II = non_dominated_sorting_genetic_algorithm_II(population_size = 50, mutation_rate = 0.1, min_values = [-5,-5], max_values = [5,5], list_of_functions = [func_1, func_2], generations = 1500, mu = 20, eta = 20)
+nsga_II = non_dominated_sorting_genetic_algorithm_II(population_size = 50, mutation_rate = 0.1, min_values = [-5,-5], max_values = [5,5], list_of_functions = [schaffer_f1, schaffer_f2], generations = 1500, mu = 20, eta = 20)
 
 # Pareto Front Solutions  = f(x1, x2) -> [0,2]
 func_1_values = nsga_II.iloc[:,-2]
