@@ -62,16 +62,20 @@ def fast_non_dominated_sorting(population, number_of_functions = 2):
     dominates_it = dominates_it.applymap(str)       
     rank = pd.DataFrame(np.zeros((population.shape[0], 1)), columns = ['Dominance_N'])
     for i in range(0, population.shape[0]):
-        for j in range(i + 1, population.shape[0]):
-            if dominance_function(solution_1 = population.iloc[i,:], solution_2 = population.iloc[j,:], number_of_functions = number_of_functions):
-                dominates_it.iloc[i,0] = str(dominates_it.iloc[i,0]) + ", " + str(j)
-                dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("0.0, ", "")
-                dominated_by.iloc[j,0] = str(dominated_by.iloc[j,0]) + ", " + str(i)
-                dominated_by.iloc[j,0] = dominated_by.iloc[j,0].replace("0.0, ", "")                
-                if (rank.iloc[i,0] > 0):
-                    rank.iloc[j,0] = rank.iloc[j,0] + 1
-                else:
-                    rank.iloc[j,0] = 1
+        for j in range(0, population.shape[0]):
+            if(i != j):
+                if dominance_function(solution_1 = population.iloc[i,:], solution_2 = population.iloc[j,:], number_of_functions = number_of_functions):
+                    dominates_it.iloc[i,0] = str(dominates_it.iloc[i,0]) + ", " + str(j)
+                    dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("0.0, ", "")
+                    dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("None, ", "")
+                    dominated_by.iloc[j,0] = str(dominated_by.iloc[j,0]) + ", " + str(i)
+                    dominated_by.iloc[j,0] = dominated_by.iloc[j,0].replace("0.0, ", "")  
+                    dominated_by.iloc[j,0] = dominated_by.iloc[j,0].replace("None, ", "") 
+                    
+                    if (rank.iloc[i,0] > 0):
+                        rank.iloc[j,0] = rank.iloc[j,0] + 1
+                    else:
+                        rank.iloc[j,0] = 1
         dominated_by.iloc[i,0] = dominated_by.iloc[i,0].replace("0.0", "None")
         dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("0.0", "None")        
     rank['Rank'] = rank['Dominance_N'].rank(method = 'dense') 
