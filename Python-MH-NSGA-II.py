@@ -135,8 +135,10 @@ def crowding_distance_function(population, rank, number_of_functions = 2):
     for i in range(0, population.shape[0]):
         if (crowding_distance.iloc[i, 0] != float("inf")):
             for j in range(1, number_of_functions + 1):
-                crowding_distance.iloc[i, 0] = crowding_distance.iloc[i, 0] + (neighbour_sorting(population, rank, column = -j, index_value = rank.iloc[i, 1], value = population.iloc[i,-j])[1] - neighbour_sorting(population, rank, column = -j, index_value = rank.iloc[i, 1], value = population.iloc[i,-j])[0])/(min_max(population, rank, column = -j, index_value = rank.iloc[i, 1])[1] - min_max(population, rank, column = -j, index_value = rank.iloc[i, 1])[0])
-    return crowding_distance 
+                f_minus_1, f_plus_1 = neighbour_sorting(population, rank, column = -j, index_value = rank.iloc[i, 1], value = population.iloc[i,-j])
+                f_min_r, f_max_r = min_max(population, rank, column = -j, index_value = rank.iloc[i, 1])       
+                crowding_distance.iloc[i, 0] = crowding_distance.iloc[i, 0] + (f_plus_1 - f_minus_1)/(f_max_r - f_min_r)
+    return crowding_distance
 
 # Function:Crowded Comparison Operator
 def crowded_comparison_operator(rank, crowding_distance, individual_1 = 0, individual_2 = 1):
