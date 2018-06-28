@@ -70,8 +70,7 @@ def fast_non_dominated_sorting(population, number_of_functions = 2):
                     dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("None, ", "")
                     dominated_by.iloc[j,0] = str(dominated_by.iloc[j,0]) + ", " + str(i)
                     dominated_by.iloc[j,0] = dominated_by.iloc[j,0].replace("0.0, ", "")  
-                    dominated_by.iloc[j,0] = dominated_by.iloc[j,0].replace("None, ", "") 
-                    
+                    dominated_by.iloc[j,0] = dominated_by.iloc[j,0].replace("None, ", "")                    
                     if (rank.iloc[i,0] > 0):
                         rank.iloc[j,0] = rank.iloc[j,0] + 1
                     else:
@@ -133,8 +132,6 @@ def crowding_distance_function(population, rank, number_of_functions = 2):
             if (rank.iloc[i, 1] != rank.iloc[i - 1, 1]):
                 crowding_distance.iloc[i, 0] = float("inf")
                 crowding_distance.iloc[i - 1, 0] = float("inf")
-    if(rank.iloc[0,1] == rank.iloc[-1,1]):
-        crowding_distance.iloc[- 1, 0] = float("inf")
     for i in range(0, population.shape[0]):
         if (crowding_distance.iloc[i, 0] != float("inf")):
             for j in range(1, number_of_functions + 1):
