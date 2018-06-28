@@ -83,19 +83,16 @@ def fast_non_dominated_sorting(population, number_of_functions = 2):
 
 # Function: Sort Population by Rank
 def sort_population_by_rank(population, rank):
-    if(rank.iloc[0,1] != rank.iloc[-1,1]):
-        rank = rank.sort_values(by = 'Rank')
-        rank_new = pd.DataFrame(np.zeros((population.shape[0], 2)), columns = ['Dominance_N', 'Rank'])
-        population_new = population.copy(deep = True)  
-        for i in range(0, population.shape[0]):
-            idx = rank.index.values.astype(int)[i]
-            rank_new.iloc[i,0] = rank.iloc[i,0] 
-            rank_new.iloc[i,1] = rank.iloc[i,1]
-            for k in range(0, population.shape[1]):
-                population_new.iloc[i,k] = population.iloc[idx,k]
-        return population_new, rank_new
-    else:
-        return population, rank
+    rank = rank.sort_values(by = 'Rank')
+    rank_new = pd.DataFrame(np.zeros((population.shape[0], 2)), columns = ['Dominance_N', 'Rank'])
+    population_new = population.copy(deep = True)  
+    for i in range(0, population.shape[0]):
+        idx = rank.index.values.astype(int)[i]
+        rank_new.iloc[i,0] = rank.iloc[i,0] 
+        rank_new.iloc[i,1] = rank.iloc[i,1]
+        for k in range(0, population.shape[1]):
+            population_new.iloc[i,k] = population.iloc[idx,k]
+    return population_new, rank_new
 
 # Function: Min_Max
 def min_max(population, rank, column = 0, index_value = 1):
