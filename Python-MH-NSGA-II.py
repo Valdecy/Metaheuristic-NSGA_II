@@ -228,23 +228,37 @@ def non_dominated_sorting_genetic_algorithm_II(population_size = 5, mutation_rat
 ######################## Part 1 - Usage ####################################
 
 # Schaffer Function 1
-def schaffer_f1 (variables_values = [0]):
+def schaffer_f1(variables_values = [0]):
     y = variables_values[0]**2
     return y
 
 # Schaffer Function 2
-def schaffer_f2 (variables_values = [0]):
+def schaffer_f2(variables_values = [0]):
     y = (variables_values[0]-2)**2
     return y
 
-# Calling Function
-nsga_II_schaffer = non_dominated_sorting_genetic_algorithm_II(population_size = 50, mutation_rate = 0.1, min_values = [-5], max_values = [5], list_of_functions = [schaffer_f1, schaffer_f2], generations = 250, mu = 10, eta = 10)
+# Shaffer Pareto Front
+solution_space = np.arange(0.0, 2.0, 0.01)
+schaffer = pd.DataFrame(np.arange(0.0, 2.0, 0.01))
+schaffer['Function 1'] = 0.0
+schaffer['Function 2'] = 0.0
+for i in range (0, schaffer.shape[0]):
+    schaffer.iloc[i,1] = schaffer_f1(variables_values = [schaffer.iloc[i,0]])
+    schaffer.iloc[i,2] = schaffer_f2(variables_values = [schaffer.iloc[i,0]])
 
-# Pareto Front Solutions
+schaffer_1 = schaffer.iloc[:,1]
+schaffer_2 = schaffer.iloc[:,2]
+
+# Calling NSGA II Function
+nsga_II_schaffer = non_dominated_sorting_genetic_algorithm_II(population_size = 40, mutation_rate = 0.5, min_values = [-5], max_values = [5], list_of_functions = [schaffer_f1, schaffer_f2], generations = 250, mu = 10, eta = 10)
+
+# Graph Pareto Front Solutions
 func_1_values = nsga_II_schaffer.iloc[:,-2]
 func_2_values = nsga_II_schaffer.iloc[:,-1]
-plt.figure(figsize=(15,8))
-plt.xlabel('Function 1', fontsize = 15)
-plt.ylabel('Function 2', fontsize = 15)
-plt.scatter(func_1_values, func_2_values, c = 'red', s = 25)
+ax1 = plt.figure(figsize = (15,15)).add_subplot(111)
+plt.xlabel('Function 1', fontsize = 12)
+plt.ylabel('Function 2', fontsize = 12)
+ax1.scatter(func_1_values, func_2_values, c = 'red',   s = 25, marker = 'o', label = 'NSGA-II')
+ax1.scatter(schaffer_1,    schaffer_2,    c = 'black', s = 2,  marker = 's', label = 'Pareto Front')
+plt.legend(loc = 'upper right');
 plt.show()
