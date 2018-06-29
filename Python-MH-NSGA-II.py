@@ -238,7 +238,6 @@ def schaffer_f2(variables_values = [0]):
     return y
 
 # Shaffer Pareto Front
-solution_space = np.arange(0.0, 2.0, 0.01)
 schaffer = pd.DataFrame(np.arange(0.0, 2.0, 0.01))
 schaffer['Function 1'] = 0.0
 schaffer['Function 2'] = 0.0
