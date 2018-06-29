@@ -20,11 +20,11 @@ import random
 import os
 
 # Function 1
-def func_1 ():
+def func_1():
     return
 
 # Function 2
-def func_2 ():
+def func_2():
     return
 
 # Function: Initialize Variables
@@ -78,13 +78,14 @@ def fast_non_dominated_sorting(population, number_of_functions = 2):
         dominated_by.iloc[i,0] = dominated_by.iloc[i,0].replace("0.0", "None")
         dominates_it.iloc[i,0] = dominates_it.iloc[i,0].replace("0.0", "None")        
     rank['Rank'] = rank['Dominance_N'].rank(method = 'dense') 
-    return rank, dominated_by, dominates_it 
+    return rank, dominated_by, dominates_it  
 
 # Function: Sort Population by Rank
 def sort_population_by_rank(population, rank):
     rank = rank.sort_values(by = 'Rank')
     rank_new = pd.DataFrame(np.zeros((population.shape[0], 2)), columns = ['Dominance_N', 'Rank'])
     population_new = population.copy(deep = True)  
+    population_new = population_new.reset_index(drop=True)
     for i in range(0, population.shape[0]):
         idx = rank.index.values.astype(int)[i]
         rank_new.iloc[i,0] = rank.iloc[i,0] 
@@ -93,52 +94,41 @@ def sort_population_by_rank(population, rank):
             population_new.iloc[i,k] = population.iloc[idx,k]
     return population_new, rank_new
 
-# Function: Min_Max
-def min_max(population, rank, column = 0, index_value = 1):
-    value_min =  float("inf")
-    value_max = -float("inf")
-    for i in range(0, population.shape[0]):
-        if (rank.iloc[i, 1] == index_value and population.iloc[i, column] < value_min):
-            value_min = population.iloc[i, column]
-        if (rank.iloc[i, 1] == index_value and population.iloc[i, column] > value_max):
-            value_max = population.iloc[i, column]        
-    return value_min, value_max
-
 # Function: Neighbour Sorting
 def neighbour_sorting(population, rank, column = 0, index_value = 1, value = 0):
     sorted_population = population.loc[rank['Rank'] == index_value].copy(deep = True)
     sorted_population = sorted_population.sort_values(by = population.columns.values[column])
-    value_lower =  float("inf")
-    value_upper = -float("inf")
+    sorted_population = sorted_population.reset_index(drop=True)
+    value_lower = float("inf")
+    value_upper = float("inf")
     for i in range(0, sorted_population.shape[0]):
-        if (sorted_population.iloc[i, column] == value):
+        if (sorted_population.iloc[i, column] == value and sorted_population.shape[0] > 2):
             if (i == 0):
-                value_lower = sorted_population.iloc[i, column]
+                value_lower = float("inf")
+                value_upper = sorted_population.iloc[i+1, column] 
+                break
+            elif (i == sorted_population.shape[0] - 1):
+                value_lower = sorted_population.iloc[i-1, column]
+                value_upper = float("inf")
+                break
             else:
                 value_lower = sorted_population.iloc[i-1, column]
-            if (i == sorted_population.shape[0] - 1):
-                value_upper = sorted_population.iloc[i, column]
-            else:
-                value_upper = sorted_population.iloc[i+1, column]        
+                value_upper = sorted_population.iloc[i+1, column]  
+                break
     return value_lower, value_upper
 
 # Function: Crowding Distance
-def crowding_distance_function(population, rank, number_of_functions = 2): 
+def crowding_distance_function(population, rank, min_values = [-5,-5], max_values = [5,5], list_of_functions = [func_1, func_2]):
     crowding_distance = pd.DataFrame(np.zeros((population.shape[0], 1)), columns = ['Crowding_Distance'])    
     for i in range(0, population.shape[0]):
-        if (i == 0):
-            crowding_distance.iloc[i, 0] = float("inf")
-        elif(i < population.shape[0]):
-            if (rank.iloc[i, 1] != rank.iloc[i - 1, 1]):
-                crowding_distance.iloc[i, 0] = float("inf")
-                crowding_distance.iloc[i - 1, 0] = float("inf")
-    for i in range(0, population.shape[0]):
-        if (crowding_distance.iloc[i, 0] != float("inf")):
-            for j in range(1, number_of_functions + 1):
-                f_minus_1, f_plus_1 = neighbour_sorting(population, rank, column = -j, index_value = rank.iloc[i, 1], value = population.iloc[i,-j])
-                f_min_r, f_max_r = min_max(population, rank, column = -j, index_value = rank.iloc[i, 1])       
-                crowding_distance.iloc[i, 0] = crowding_distance.iloc[i, 0] + (f_plus_1 - f_minus_1)/(f_max_r - f_min_r)
-    return crowding_distance
+        for j in range(1, len(list_of_functions) + 1):
+            f_minus_1, f_plus_1 = neighbour_sorting(population, rank, column = -j, index_value = rank.iloc[i, 1], value = population.iloc[i,-j]) 
+            f_min_r, f_max_r = list_of_functions[-j](min_values), list_of_functions[-j](max_values)
+            if (f_minus_1 == float("inf") or f_plus_1 == float("inf")):
+                crowding_distance.iloc[i, 0] = 99999999999
+            else:
+                crowding_distance.iloc[i, 0] = crowding_distance.iloc[i, 0] + (f_plus_1 - f_minus_1)/(f_max_r - f_min_r + 1)
+    return crowding_distance 
 
 # Function:Crowded Comparison Operator
 def crowded_comparison_operator(rank, crowding_distance, individual_1 = 0, individual_2 = 1):
@@ -160,15 +150,13 @@ def breeding(population, rank, crowding_distance, min_values = [-5,-5], max_valu
         elif (crowded_comparison_operator(rank, crowding_distance, individual_1 = i2, individual_2 = i1) == True):
             parent_1 = i2
         else:
-            parent_1 = random.randint(0, len(population) - 1)           
+            parent_1 = i1         
         if (crowded_comparison_operator(rank, crowding_distance, individual_1 = i3, individual_2 = i4) == True):
             parent_2 = i3
         elif (crowded_comparison_operator(rank, crowding_distance, individual_1 = i4, individual_2 = i3) == True):
             parent_2 = i4
         else:
-            parent_2 = random.randint(0, len(population) - 1)
-            while (parent_1 == parent_2):
-                parent_2 = random.randint(0, len(population) - 1)        
+            parent_2 = i4       
         for j in range(0, offspring.shape[1] - len(list_of_functions)):
             rand = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
             rand_b = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)                                
@@ -221,18 +209,19 @@ def mutation(offspring, mutation_rate = 0.1, eta = 1, min_values = [-5,-5], max_
 def non_dominated_sorting_genetic_algorithm_II(population_size = 5, mutation_rate = 0.1, elite = 0, min_values = [-5,-5], max_values = [5,5], list_of_functions = [func_1, func_2], generations = 50, mu = 1, eta = 1):        
     count = 0
     number_of_functions = len(list_of_functions)    
-    population = initial_population(population_size = population_size, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)    
+    population = initial_population(population_size = population_size, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)  
+    offspring = initial_population(population_size = population_size, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)  
     while (count <= generations):       
-        print("Generation = ", count)       
-        rank, _ , _ = fast_non_dominated_sorting(population, number_of_functions = number_of_functions)  
-        population, rank = sort_population_by_rank(population, rank)   
-        crowding_distance = crowding_distance_function(population, rank, number_of_functions = number_of_functions)
-        offspring = breeding(population, rank, crowding_distance, mu = mu, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)
-        offspring = mutation(offspring, mutation_rate = mutation_rate, eta = eta, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)       
+        print("Generation = ", count)
         population = pd.concat([population, offspring])
         rank, _ , _ = fast_non_dominated_sorting(population, number_of_functions = number_of_functions)
         population, rank = sort_population_by_rank(population, rank)
-        population, rank = population.iloc[0:population_size,:], rank.iloc[0:population_size,:]          
+        population, rank = population.iloc[0:population_size,:], rank.iloc[0:population_size,:] 
+        rank, _ , _ = fast_non_dominated_sorting(population, number_of_functions = number_of_functions)  
+        population, rank = sort_population_by_rank(population, rank)   
+        crowding_distance = crowding_distance_function(population, rank, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)
+        offspring = breeding(population, rank, crowding_distance, mu = mu, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)
+        offspring = mutation(offspring, mutation_rate = mutation_rate, eta = eta, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)              
         count = count + 1              
     return population
 
@@ -249,11 +238,11 @@ def schaffer_f2 (variables_values = [0]):
     return y
 
 # Calling Function
-nsga_II = non_dominated_sorting_genetic_algorithm_II(population_size = 50, mutation_rate = 0.1, min_values = [-5], max_values = [5], list_of_functions = [schaffer_f1, schaffer_f2], generations = 1500, mu = 20, eta = 20)
+nsga_II_schaffer = non_dominated_sorting_genetic_algorithm_II(population_size = 50, mutation_rate = 0.1, min_values = [-5], max_values = [5], list_of_functions = [schaffer_f1, schaffer_f2], generations = 250, mu = 10, eta = 10)
 
-# Pareto Front Solutions  = f(x1, x2) -> [0,2]
-func_1_values = nsga_II.iloc[:,-2]
-func_2_values = nsga_II.iloc[:,-1]
+# Pareto Front Solutions
+func_1_values = nsga_II_schaffer.iloc[:,-2]
+func_2_values = nsga_II_schaffer.iloc[:,-1]
 plt.figure(figsize=(15,8))
 plt.xlabel('Function 1', fontsize = 15)
 plt.ylabel('Function 2', fontsize = 15)
