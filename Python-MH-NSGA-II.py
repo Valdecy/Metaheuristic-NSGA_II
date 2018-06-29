@@ -250,7 +250,7 @@ schaffer_1 = schaffer.iloc[:,1]
 schaffer_2 = schaffer.iloc[:,2]
 
 # Calling NSGA II Function
-nsga_II_schaffer = non_dominated_sorting_genetic_algorithm_II(population_size = 40, mutation_rate = 0.5, min_values = [-5], max_values = [5], list_of_functions = [schaffer_f1, schaffer_f2], generations = 250, mu = 10, eta = 10)
+nsga_II_schaffer = non_dominated_sorting_genetic_algorithm_II(population_size = 40, mutation_rate = 0.1, min_values = [-5], max_values = [5], list_of_functions = [schaffer_f1, schaffer_f2], generations = 250, mu = 10, eta = 10)
 
 # Graph Pareto Front Solutions
 func_1_values = nsga_II_schaffer.iloc[:,-2]
