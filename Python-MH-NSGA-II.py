@@ -182,11 +182,7 @@ def mutation(offspring, mutation_rate = 0.1, eta = 1, min_values = [-5,-5], max_
                 elif (rand > 0.5):  
                     d_mutation = 2*(1 - rand_d)
                     d_mutation = 1 - d_mutation**(1/(eta + 1))                
-                offspring.iloc[i,j] = offspring.iloc[i,j] + d_mutation
-                if (offspring.iloc[i,j] > max_values[j]):
-                    offspring.iloc[i,j] = max_values[j]
-                elif (offspring.iloc[i,j] < min_values[j]):
-                    offspring.iloc[i,j] = min_values[j]                     
+                offspring.iloc[i,j] = np.clip((offspring.iloc[i,j] + d_mutation), min_values[j], max_values[j])                    
         for k in range (1, len(list_of_functions) + 1):
             offspring.iloc[i,-k] = list_of_functions[-k](offspring.iloc[i,0:offspring.shape[1]-len(list_of_functions)])
     return offspring 
