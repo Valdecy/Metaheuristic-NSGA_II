@@ -170,19 +170,20 @@ def breeding(population, rank, crowding_distance, min_values = [-5,-5], max_valu
 # Function: Mutation
 def mutation(offspring, mutation_rate = 0.1, eta = 1, min_values = [-5,-5], max_values = [5,5], list_of_functions = [func_1, func_2]):
     d_mutation = 0
-    for i in range (0, offspring.shape[0]):
-        for j in range(0, offspring.shape[1] - len(list_of_functions)):
-            probability = np.random.rand(1)[0]
-            if (probability < mutation_rate):
-                rand = np.random.rand(1)[0]
-                rand_d = np.random.rand(1)[0]                                     
-                if (rand <= 0.5):
-                    d_mutation = 2*(rand_d)
-                    d_mutation = d_mutation**(1/(eta + 1)) - 1
-                elif (rand > 0.5):  
-                    d_mutation = 2*(1 - rand_d)
-                    d_mutation = 1 - d_mutation**(1/(eta + 1))                
-                offspring.iloc[i,j] = np.clip((offspring.iloc[i,j] + d_mutation), min_values[j], max_values[j])                    
+    list_random = []
+    list_random = random.sample(range(0,  offspring.shape[0]*(offspring.shape[1]-len(list_of_functions)) - 1), int(mutation_rate*offspring.shape[0]*(offspring.shape[1]-len(list_of_functions))))
+    for each in list_random:
+        i = each // (offspring.shape[1]-len(list_of_functions))
+        j = each %  (offspring.shape[1]-len(list_of_functions))
+        rand = np.random.rand(1)[0]
+        rand_d = np.random.rand(1)[0] 
+        if (rand <= 0.5):
+            d_mutation = 2*(rand_d)
+            d_mutation = d_mutation**(1/(eta + 1)) - 1
+        elif (rand > 0.5):  
+            d_mutation = 2*(1 - rand_d)
+            d_mutation = 1 - d_mutation**(1/(eta + 1))                
+        offspring.iloc[i,j] = np.clip((offspring.iloc[i,j] + d_mutation), min_values[j], max_values[j]) 
         for k in range (1, len(list_of_functions) + 1):
             offspring.iloc[i,-k] = list_of_functions[-k](offspring.iloc[i,0:offspring.shape[1]-len(list_of_functions)])
     return offspring 
