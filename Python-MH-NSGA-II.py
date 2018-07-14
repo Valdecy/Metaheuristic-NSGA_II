@@ -189,7 +189,6 @@ def mutation(offspring, mutation_rate = 0.1, eta = 1, min_values = [-5,-5], max_
     for i in range (0, offspring.shape[0]):
         for j in range(0, offspring.shape[1] - len(list_of_functions)):
             probability = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-            probability = np.random.rand(1)[0]
             if (probability < mutation_rate):
                 rand = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
                 rand_d = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)                                   
