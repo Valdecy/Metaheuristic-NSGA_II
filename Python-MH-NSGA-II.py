@@ -192,9 +192,7 @@ def mutation(offspring, mutation_rate = 0.1, eta = 1, min_values = [-5,-5], max_
             probability = np.random.rand(1)[0]
             if (probability < mutation_rate):
                 rand = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-                rand_d = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)      
-                rand = np.random.rand(1)[0]
-                rand_d = np.random.rand(1)[0]                                
+                rand_d = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)                                   
                 if (rand <= 0.5):
                     d_mutation = 2*(rand_d)
                     d_mutation = d_mutation**(1/(eta + 1)) - 1
