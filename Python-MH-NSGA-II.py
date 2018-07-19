@@ -128,16 +128,15 @@ def neighbour_sorting(population, rank, column = 0, index_value = 1, value = 0):
     return value_lower, value_upper
 
 # Function: Crowding Distance
-def crowding_distance_function(population, rank, min_values = [-5,-5], max_values = [5,5], list_of_functions = [func_1, func_2]):
+def crowding_distance_function(population, rank, number_of_functions = 2):
     crowding_distance = pd.DataFrame(np.zeros((population.shape[0], 1)), columns = ['Crowding_Distance'])    
     for i in range(0, population.shape[0]):
-        for j in range(1, len(list_of_functions) + 1):
+        for j in range(1, number_of_functions + 1):
             f_minus_1, f_plus_1 = neighbour_sorting(population, rank, column = -j, index_value = rank.iloc[i, 0], value = population.iloc[i,-j])  
-            f_min_r, f_max_r = list_of_functions[-j](min_values), list_of_functions[-j](max_values)
             if (f_minus_1 == float("inf") or f_plus_1 == float("inf")):
                 crowding_distance.iloc[i, 0] = 99999999999
             else:
-                crowding_distance.iloc[i, 0] = crowding_distance.iloc[i, 0] + (f_plus_1 - f_minus_1)/(f_max_r - f_min_r + 1)
+                crowding_distance.iloc[i, 0] = crowding_distance.iloc[i, 0] + (f_plus_1 - f_minus_1)
     return crowding_distance 
 
 # Function:Crowded Comparison Operator
@@ -216,7 +215,7 @@ def non_dominated_sorting_genetic_algorithm_II(population_size = 5, mutation_rat
         population, rank = population.iloc[0:population_size,:], rank.iloc[0:population_size,:] 
         rank = fast_non_dominated_sorting(population, number_of_functions = len(list_of_functions))
         population, rank = sort_population_by_rank(population, rank)
-        crowding_distance = crowding_distance_function(population, rank, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)
+        crowding_distance = crowding_distance_function(population, rank,  number_of_functions = len(list_of_functions))
         offspring = breeding(population, rank, crowding_distance, mu = mu, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)
         offspring = mutation(offspring, mutation_rate = mutation_rate, eta = eta, min_values = min_values, max_values = max_values, list_of_functions = list_of_functions)            
         count = count + 1              
