@@ -159,13 +159,21 @@ def breeding(population, rank, crowding_distance, min_values = [-5,-5], max_valu
         elif (crowded_comparison_operator(rank, crowding_distance, individual_1 = i2, individual_2 = i1) == True):
             parent_1 = i2
         else:
-            parent_1 = i1         
+            rand = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+            if (rand > 0.5):
+                parent_1 = i1
+            else:
+                parent_1 = i2
         if (crowded_comparison_operator(rank, crowding_distance, individual_1 = i3, individual_2 = i4) == True):
             parent_2 = i3
         elif (crowded_comparison_operator(rank, crowding_distance, individual_1 = i4, individual_2 = i3) == True):
             parent_2 = i4
         else:
-            parent_2 = i4       
+            rand = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+            if (rand > 0.5):
+                parent_2 = i3
+            else:
+                parent_2 = i4     
         for j in range(0, offspring.shape[1] - len(list_of_functions)):
             rand = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
             rand_b = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)                                
