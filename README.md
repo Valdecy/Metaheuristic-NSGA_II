@@ -16,3 +16,8 @@ NSGA II (Non-Dominated Sorting Genetic Algorithm II) Function to Minimize Multip
 * list_of_functions = A list of functions. The default value is two fucntions [func_1, func_2].
 
 * mu = Value of the breed operator. The Default Value is 1.
+
+Kursawe Function Example:
+<p align="center"> 
+<img src="https://github.com/Valdecy/Metaheuristic-NSGA_II/blob/master/Python-MH-NSGA-II.gif">
+</p
