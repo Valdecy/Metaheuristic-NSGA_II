@@ -17,6 +17,15 @@ NSGA II (Non-Dominated Sorting Genetic Algorithm II) Function to Minimize Multip
 
 * mu = Value of the breed operator. The Default Value is 1.
 
+# Single Objective Optimization
+For Single Objective Optimization try [pyMetaheuristic](https://github.com/Valdecy/pyMetaheuristic)
+
+# Multiobjective Optimization or Many Objectives Optimization
+For Multiobjective Optimization or Many Objectives Optimization try [pyMultiobjective](https://github.com/Valdecy/pyMultiobjective)
+
+# TSP (Travelling Salesman Problem)
+For Travelling Salesman Problems try [pyCombinatorial](https://github.com/Valdecy/pyCombinatorial)
+
 Kursawe Function Example:
 <p align="center"> 
 <img src="https://github.com/Valdecy/Metaheuristic-NSGA_II/blob/master/Python-MH-NSGA-II.gif">
